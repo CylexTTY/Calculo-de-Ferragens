@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo Ferragens - Versão Final</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-color) !important;
+            color: white !important;
+            border-color: var(--primary-color);
+        }
+
+        .calculator-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .result-card {
+            background: #e9f7ff;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .cut-instruction {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .waste-badge {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .column-entry {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .good-waste {
+            background: #d4efdf;
+            color: #186a3b;
+        }
+
+        .bad-waste {
+            background: #fadbd8;
+            color: #943126;
+        }
+
+        .optimization-tip {
+            color: #2ecc71;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 576px) {
+            .form-control, .form-select {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            .calculator-section {
+                padding: 15px;
+            }
+            
+            h4 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="py-4">
+    <div class="container">
+        <h1 class="text-center mb-4" style="color: var(--primary-color);">Cálculo de Ferragens</h1>
+        
+        <ul class="nav nav-tabs mb-4" id="mainTabs">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#columns">Colunas</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#footings">Sapatas</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Seção Colunas -->
+            <div class="tab-pane fade show active" id="columns">
+                <div class="calculator-section">
+                    <div id="columnEntries">
+                        <div class="column-entry">
+                            <div class="row g-3">
+                                <div class="col-6 col-md-3">
+                                    <label>Altura (m)</label>
+                                    <input type="number" class="form-control altura" value="4" step="0.5">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label>Quantidade</label>
+                                    <input type="number" class="form-control qtd" value="1" min="1">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label>Ferros Principais</label>
+                                    <select class="form-select ferros">
+                                        <option value="4">4</option>
+                                        <option value="6">6</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check pt-3">
+                                        <input class="form-check-input reforco" type="checkbox">
+                                        <label class="form-check-label">+2 Reforço</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-secondary mt-2" onclick="addColumnEntry()">+ Adicionar Coluna</button>
+
+                    <div class="row g-3 mt-3">
+                        <div class="col-6 col-md-3">
+                            <label>Estribo (cm)</label>
+                            <input type="text" class="form-control" id="colEstribo" value="09x15">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Sobra Estribo (cm)</label>
+                            <input type="number" class="form-control" id="colSobraEstribo" value="5">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Sobra Aceitável (m)</label>
+                            <input type="number" class="form-control" id="colSobraAceitavel" value="1.0" step="0.1">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-3" onclick="calcularColuna()">Calcular</button>
+                    <div id="resultadoColuna" class="mt-4"></div>
+                </div>
+            </div>
+
+            <!-- Seção Sapatas -->
+            <div class="tab-pane fade" id="footings">
+                <div class="calculator-section">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <label>Comprimento (cm)</label>
+                            <input type="number" class="form-control" id="sapComprimento" value="50" step="5">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Largura (cm)</label>
+                            <input type="number" class="form-control" id="sapLargura" value="30" step="5">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Altura (cm)</label>
+                            <input type="number" class="form-control" id="sapAltura" value="20" step="5">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Qtd. Sapatas</label>
+                            <input type="number" class="form-control" id="sapQtd" value="1" min="1">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Qtd. Ferros</label>
+                            <select class="form-select" id="sapQtdFerros">
+                                <option value="6">6</option>
+                                <option value="8" selected>8</option>
+                                <option value="10">10</option>
+                                <option value="12">12</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Sobra Extremidade (cm)</label>
+                            <input type="number" class="form-control" id="sapSobra" value="3">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label>Sobra Aceitável (m)</label>
+                            <input type="number" class="form-control" id="sapSobraAceitavel" value="1.0" step="0.1">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-3" onclick="calcularSapata()">Calcular</button>
+                    <div id="resultadoSapata" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funções para Colunas
+        function addColumnEntry() {
+            const newEntry = document.createElement('div');
+            newEntry.className = 'column-entry mt-2';
+            newEntry.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <input type="number" class="form-control altura" value="4" step="0.5" placeholder="Altura (m)">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <input type="number" class="form-control qtd" value="1" min="1" placeholder="Quantidade">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select class="form-select ferros">
+                            <option value="4">4 Ferros</option>
+                            <option value="6">6 Ferros</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="form-check pt-3">
+                            <input class="form-check-input reforco" type="checkbox">
+                            <label class="form-check-label">+2 Reforço</label>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('columnEntries').appendChild(newEntry);
+        }
+
+        function calcularEstribos(altura) {
+            let estribos = 0;
+            const metrosInteiros = Math.floor(altura);
+            const meioMetro = altura % 1 >= 0.5;
+
+            if(altura <= 5) {
+                estribos = metrosInteiros * 3;
+                if(meioMetro) estribos += 2;
+            } else {
+                estribos = 15;
+                const metrosExtras = altura -5;
+                const metrosExtrasInteiros = Math.floor(metrosExtras);
+                estribos += metrosExtrasInteiros *1;
+                
+                if(metrosExtras - metrosExtrasInteiros >= 0.5) {
+                    if(altura <= 6.5) estribos +=2;
+                    else if(altura <= 7.5) estribos +=3;
+                    else estribos += Math.floor(metrosExtras) +2;
+                }
+            }
+            return estribos;
+        }
+
+        function calcularColuna() {
+            const entries = document.querySelectorAll('.column-entry');
+            let totalFerrosPrincipais = 0;
+            let totalEstribos = 0;
+
+            entries.forEach(entry => {
+                const altura = parseFloat(entry.querySelector('.altura').value);
+                const qtd = parseInt(entry.querySelector('.qtd').value);
+                const ferros = parseInt(entry.querySelector('.ferros').value);
+                const reforco = entry.querySelector('.reforco').checked ? 2 : 0;
+                
+                totalFerrosPrincipais += qtd * (ferros + reforco);
+                totalEstribos += calcularEstribos(altura) * qtd;
+            });
+
+            const estribo = document.getElementById('colEstribo').value.split('x').map(Number);
+            const sobraEstribo = parseInt(document.getElementById('colSobraEstribo').value);
+            const sobraAceitavel = parseFloat(document.getElementById('colSobraAceitavel').value);
+
+            // Cálculo de ferros principais
+            const totalMetrosPrincipais = totalFerrosPrincipais * entries[0].querySelector('.altura').value; // Assume mesma altura
+            const barrasNecessarias = Math.ceil(totalMetrosPrincipais / 12);
+            const sobraPorBarra = 12 % entries[0].querySelector('.altura').value;
+            const sobraTotal = barrasNecessarias * sobraPorBarra;
+
+            // Cálculo de estribos
+            const perimetroEstribo = (estribo[0]*2 + estribo[1]*2) + sobraEstribo;
+            const estribosPorBarra = Math.floor(1200 / perimetroEstribo);
+            const barrasEstribo = Math.ceil(totalEstribos / estribosPorBarra);
+            const sobraEstriboPorBarra = 1200 - (estribosPorBarra * perimetroEstribo);
+
+            // Verificar otimização
+            let otimizacaoEstribo = '';
+            if(sobraEstriboPorBarra > 0) {
+                const novoPerimetro = perimetroEstribo - 1;
+                const novosEstribosPorBarra = Math.floor(1200 / novoPerimetro);
+                if(novosEstribosPorBarra > estribosPorBarra) {
+                    otimizacaoEstribo = `<div class="optimization-tip">Dica: Reduzir 1cm da sobra permitiria ${novosEstribosPorBarra} estribos/barra (economia de ${barrasEstribo - Math.ceil(totalEstribos/novosEstribosPorBarra)} barras)</div>`;
+                }
+            }
+
+            // Calcular medida total do estribo
+            const perimetroEstriboTotal = (estribo[0]*2 + estribo[1]*2) + sobraEstribo;
+
+            // Montar resultado
+            let resultado = `
+                <div class="result-card">
+                    <h4>Resultado para Colunas</h4>
+                    
+                    <div class="cut-instruction">
+                        <h5>Ferros Principais</h5>
+                        <p>➜ Barras necessárias: ${barrasNecessarias}x12m</p>
+                        <p>➜ Corte cada barra em ${entries[0].querySelector('.altura').value}m</p>
+                        <p>➜ Sobra por barra: <span class="${sobraPorBarra >= sobraAceitavel ? 'good-waste waste-badge' : 'bad-waste waste-badge'}">${sobraPorBarra.toFixed(2)}m</span></p>
+                        <p>➜ Sobra total: ${sobraTotal.toFixed(2)}m</p>
+                    </div>
+
+                    <div class="cut-instruction">
+                        <h5>Estribos</h5>
+                        <p>➜ Medida total por estribo: 
+                            <span class="good-waste waste-badge">${perimetroEstriboTotal}cm</span>
+                            <small class="text-muted">(${estribo[0]}x${estribo[1]}cm + ${sobraEstribo}cm)</small>
+                        </p>
+                        <p>➜ Total necessário: ${totalEstribos} unidades</p>
+                        <p>➜ Barras de estribo: ${barrasEstribo}x12m</p>
+                        <p>➜ ${estribosPorBarra} estribos/barra</p>
+                        <p>➜ Sobra por barra: <span class="${sobraEstriboPorBarra >= 150 ? 'good-waste waste-badge' : 'bad-waste waste-badge'}">${sobraEstriboPorBarra}cm</span></p>
+                        ${otimizacaoEstribo}
+                    </div>
+                </div>`;
+
+            document.getElementById('resultadoColuna').innerHTML = resultado;
+        }
+
+        // Funções para Sapatas
+        function calcularSapata() {
+            const config = {
+                comprimento: parseInt(document.getElementById('sapComprimento').value)/100,
+                largura: parseInt(document.getElementById('sapLargura').value)/100,
+                altura: parseInt(document.getElementById('sapAltura').value)/100,
+                qtd: parseInt(document.getElementById('sapQtd').value),
+                qtdFerros: parseInt(document.getElementById('sapQtdFerros').value),
+                sobra: parseInt(document.getElementById('sapSobra').value)/100,
+                sobraAceitavel: parseFloat(document.getElementById('sapSobraAceitavel').value)
+            };
+
+            const multiplicador = config.qtdFerros / 2;
+            const medidaX = ((config.comprimento + config.altura) * 2 + config.sobra);
+            const medidaY = ((config.largura + config.altura) * 2 + config.sobra);
+            
+            const totalX = medidaX * multiplicador * config.qtd;
+            const totalY = medidaY * multiplicador * config.qtd;
+            const total = totalX + totalY;
+            
+            const barrasNecessarias = Math.ceil(total / 12);
+            const sobraTotal = (barrasNecessarias * 12) - total;
+
+            let resultado = `
+                <div class="result-card">
+                    <h4>Resultado para ${config.qtd} Sapatas</h4>
+                    
+                    <div class="cut-instruction">
+                        <h5>Detalhes do Cálculo</h5>
+                        <p>➜ Total de ferro: ${total.toFixed(2)}m</p>
+                        <p>➜ Barras necessárias: ${barrasNecessarias}x12m</p>
+                        <p>➜ Medidas por sapata (x${config.qtd}):</p>
+                        <p>• Eixo X: ${medidaX.toFixed(2)}m x${multiplicador * config.qtd}</p>
+                        <p>• Eixo Y: ${medidaY.toFixed(2)}m x${multiplicador * config.qtd}</p>
+                        <p>➜ Sobra total: <span class="${sobraTotal >= config.sobraAceitavel ? 'good-waste' : 'bad-waste'}">${sobraTotal.toFixed(2)}m</span></p>
+                    </div>
+                </div>`;
+
+            document.getElementById('resultadoSapata').innerHTML = resultado;
+        }
+    </script>
+</body>
+</html>
