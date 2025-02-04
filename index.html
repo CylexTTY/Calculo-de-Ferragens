@@ -3,116 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cálculo Ferragens - Versão Final</title>
+    <title>Cálculo Ferragens</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Variáveis de cores do sistema */
         :root {
             --primary-color: #2c3e50;
-            --secondary-color: #3498db;
+            --secondary-color: #27ae60;
+            --danger-color: #c0392b;
+            --background: #f8f9fa;
         }
 
         body {
-            background-color: #f8f9fa;
-            font-family: 'Arial', sans-serif;
+            background: var(--background);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            position: relative;
+        }
+
+        .save-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            animation: fadeOut 3s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Estilo das Abas */
+        .nav-tabs {
+            border: none;
+            display: flex;
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .nav-tabs .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 0;
+            color: #7f8c8d;
+            font-weight: 600;
+            padding: 1.5rem;
+            background: #ecf0f1;
+            margin: 0;
+            transition: all 0.2s;
+            width: 100%;
+            display: block;
+            font-size: 1.1rem;
         }
 
         .nav-tabs .nav-link.active {
             background: var(--primary-color) !important;
             color: white !important;
-            border-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
+        /* Seções de Cálculo */
         .calculator-section {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin: 15px 0;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 2rem;  /* Aumentado para dar mais espaço */
+            margin-top: 0;
         }
 
-        .result-card {
-            background: #e9f7ff;
-            border-left: 4px solid var(--secondary-color);
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .cut-instruction {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 10px 0;
-        }
-
-        .waste-badge {
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }
-
+        /* Campos de entrada */
         .column-entry {
             background: #f8f9fa;
+            padding: 1.5rem;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 1.5rem;
         }
 
+        /* Label dos campos */
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        /* Grupo de entrada personalizado */
+        .input-group-custom {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .input-group-custom input,
+        .input-group-custom select {
+            width: calc(100% - 45px);
+            height: 38px;
+            padding: .375rem .75rem;
+            margin-right: 45px;
+            font-size: 0.95rem;
+        }
+
+        /* Controles de + e - */
+        .input-controls {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            display:flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2px 0;
+        }
+
+        .value-btn {
+            width: 38px;
+            height: 45%;
+            border: none;
+            background: #ecf0f1;
+            border-radius: 4px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .value-btn:hover {
+            background: #dde2e7;
+        }
+
+         /* Estilo especial para campo Estribo */
+        .estribo-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .estribo-input-group input {
+            width: 60px !important;
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        .estribo-input-group span {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0 5px;
+        }
+
+        /* Cartão de Resultados */
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--secondary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        /* Instruções de Corte */
+        .cut-instruction {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #eee;
+        }
+
+        /* Destaque de Valores */
+        .value-highlight {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1em;
+            background: #f1f2f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* Indicadores de Desperdício */
         .good-waste {
-            background: #d4efdf;
-            color: #186a3b;
+            color: #27ae60;
+            font-weight: 700;
+            background: #e9f7ef;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
         .bad-waste {
-            background: #fadbd8;
-            color: #943126;
+            color: #c0392b;
+            font-weight: 700;
+            background: #fdecea;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
+        /* Dica de Otimização */
         .optimization-tip {
-            color: #2ecc71;
-            font-size: 0.9em;
-            margin-top: 5px;
+            color: var(--secondary-color);
+            background: #e9f7ef;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--secondary-color);
         }
 
-        @media (max-width: 576px) {
-            .form-control, .form-select {
-                font-size: 14px;
-                padding: 8px 12px;
-            }
-            
+        /* Acordeão */
+        .collapse-trigger {
+            cursor: pointer;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .collapse-trigger:hover {
+            opacity: 0.8;
+        }
+
+        .collapse-trigger i {
+            transition: transform 0.3s;
+        }
+
+        .collapse-trigger.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .barra-detalhe {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .barra-detalhe-inner {
+            margin-left: 20px;
+            border-left: 2px solid var(--secondary-color);
+            padding-left: 15px;
+        }
+
+        /* Toggle */
+        .detalhes-toggle {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .detalhes-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .detalhes-toggle i {
+            transition: transform 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .detalhes-toggle[aria-expanded="true"] i {
+            transform: rotate(180deg);
+        }
+
+        .detalhes-container {
+            margin-top: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        /* Ajustes para detalhes */
+        .barra-info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .peca-item {
+            margin: 5px 0;
+            padding-left: 10px;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        /* Responsividade para Mobile */
+        @media (max-width: 768px) {
             .calculator-section {
-                padding: 15px;
+                padding: 1rem;
+            }
+
+            .column-entry {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .row > * {
+                margin-bottom: 1rem;
+            }
+
+            label {
+                font-size: 0.95rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .input-group-custom input,
+            .input-group-custom select {
+                font-size: 0.95rem;
+                height: 40px;
+            }
+
+            .value-btn {
+                width: 36px;
+                height: 40%;
+                font-size: 15px;
+            }
+
+            .form-check {
+                margin-top: 0.5rem;
+            }
+
+            /* Ajuste para elementos em telas pequenas */
+            .col-6 {
+                width: 50%;  /* Em mobile, campos ocupam metade da largura total */
+            }
+
+            .nav-tabs .nav-link {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            .estribo-input-group input {
+                width: 60px !important;
+                padding: 8px;
+                font-size: 15px;
+            }
+
+            .collapse-trigger {
+                font-size: 0.9rem;
+            }
+
+            .detalhes-container {
+                padding: 1rem 0.5rem !important;
+                margin: 0 -0.5rem;
             }
             
-            h4 {
-                font-size: 1.2rem;
+            .barra-info {
+                margin: 12px 0;
+                padding: 12px;
+                border-radius: 6px;
+                background: #fff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            .peca-item {
+                font-size: 0.95rem;
+                padding: 6px 0 6px 12px;
+                margin: 6px 0;
+                border-left: 3px solid var(--secondary-color);
+                line-height: 1.4;
+            }
+            
+            .barra-info strong {
+                font-size: 1rem;
+                display: block;
+                margin-bottom: 8px;
+            }
+            
+            .text-muted {
+                font-size: 0.85rem;
+                margin-left: 8px;
+                color: #666 !important;
+                display: inline-block;
+                background: #f8f9fa;
+                padding: 2px 6px;
+                border-radius: 4px;
+            }
+            
+            .detalhes-toggle {
+                font-size: 1rem;
+                margin: 12px 0;
+                padding: 8px 0;
+                display: flex;
+                gap: 10px;
+            }
+            
+            .good-waste, .bad-waste {
+                display: inline-block;
+                margin-top: 0;
+                padding: 4px 8px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Ajustes extras para telas muito pequenas */
+        @media (max-width: 576px) {
+            .calculator-section {
+                padding: 0.8rem;
+            }
+
+            .column-entry {
+                padding: 0.8rem;
+            }
+
+            .row {
+                margin: 0;
+            }
+
+            .col-6, .col-md-3 {
+                padding: 0.4rem;
             }
         }
     </style>
 </head>
 <body class="py-4">
+    <div class="save-notification" id="saveNotification">Valor salvo!</div>
+    
     <div class="container">
-        <h1 class="text-center mb-4" style="color: var(--primary-color);">Cálculo de Ferragens</h1>
+        <h1 class="text-center mb-4 display-6 fw-bold" style="color: var(--primary-color);">Cálculo de Ferragens</h1>
         
-        <ul class="nav nav-tabs mb-4" id="mainTabs">
+        <!-- Abas principais -->
+        <ul class="nav nav-tabs" id="mainTabs">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#columns">Colunas</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#footings">Sapatas</button></li>
         </ul>
 
+        <!-- Seção Colunas -->
         <div class="tab-content">
-            <!-- Seção Colunas -->
             <div class="tab-pane fade show active" id="columns">
                 <div class="calculator-section">
                     <div id="columnEntries">
-                        <div class="column-entry">
+                        <!-- Entrada padrão de coluna -->
+                        <div class="column-entry mb-3">
                             <div class="row g-3">
-                                <div class="col-6 col-md-3">
+                                <div class="col-6 col-md-3 input-group-custom">
                                     <label>Altura (m)</label>
-                                    <input type="number" class="form-control altura" value="4" step="0.5">
+                                    <input type="number" class="form-control altura" value="4" step="0.5" min="1">
+                                    <div class="input-controls">
+                                        <button class="value-btn">+</button>
+                                        <button class="value-btn">−</button>
+                                    </div>
                                 </div>
-                                <div class="col-6 col-md-3">
+                                <div class="col-6 col-md-3 input-group-custom">
                                     <label>Quantidade</label>
                                     <input type="number" class="form-control qtd" value="1" min="1">
+                                    <div class="input-controls">
+                                        <button class="value-btn">+</button>
+                                        <button class="value-btn">−</button>
+                                    </div>
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <label>Ferros Principais</label>
@@ -122,7 +478,7 @@
                                     </select>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="form-check pt-3">
+                                    <div class="form-check pt-4">
                                         <input class="form-check-input reforco" type="checkbox">
                                         <label class="form-check-label">+2 Reforço</label>
                                     </div>
@@ -132,18 +488,46 @@
                     </div>
                     <button class="btn btn-sm btn-secondary mt-2" onclick="addColumnEntry()">+ Adicionar Coluna</button>
 
+                    <!-- Cálculo de estribos -->
                     <div class="row g-3 mt-3">
-                        <div class="col-6 col-md-3">
+                        <div class="col-12 col-md-3 input-group-custom">
+                            <label>Espaçamento Estribo</label>
+                            <select class="form-select" id="estriboSpacing" data-save-key="estriboSpacing">
+                                <option value="normal">Normal (3/m)</option>
+                                <option value="15">15 em 15 cm</option>
+                                <option value="20">20 em 20 cm</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-12 col-md-3 input-group-custom">
                             <label>Estribo (cm)</label>
-                            <input type="text" class="form-control" id="colEstribo" value="09x15">
+                            <div class="estribo-input-group">
+                                <input type="number" id="estriboX" class="form-control" 
+                                    value="09" min="5" max="50" inputmode="numeric">
+                                <span>x</span>
+                                <input type="number" id="estriboY" class="form-control" 
+                                    value="15" min="5" max="50" inputmode="numeric">
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        
+                        <div class="col-6 col-md-3 input-group-custom savable" data-save-key="sobraEstribo">
                             <label>Sobra Estribo (cm)</label>
-                            <input type="number" class="form-control" id="colSobraEstribo" value="5">
+                            <input type="number" class="form-control" id="colSobraEstribo" 
+                                value="5" min="3" max="20" step="1">
+                            <div class="input-controls">
+                                <button class="value-btn save-trigger">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        
+                        <div class="col-6 col-md-3 input-group-custom savable" data-save-key="sobraAceitavelCol">
                             <label>Sobra Aceitável (m)</label>
-                            <input type="number" class="form-control" id="colSobraAceitavel" value="1.0" step="0.1">
+                            <input type="number" class="form-control" id="colSobraAceitavel" 
+                                value="1.0" min="0.5" max="3" step="0.1">
+                            <div class="input-controls">
+                                <button class="value-btn save-trigger">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
                     </div>
 
@@ -156,21 +540,37 @@
             <div class="tab-pane fade" id="footings">
                 <div class="calculator-section">
                     <div class="row g-3">
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-md-3 input-group-custom">
                             <label>Comprimento (cm)</label>
                             <input type="number" class="form-control" id="sapComprimento" value="50" step="5">
+                            <div class="input-controls">
+                                <button class="value-btn">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-md-3 input-group-custom">
                             <label>Largura (cm)</label>
                             <input type="number" class="form-control" id="sapLargura" value="30" step="5">
+                            <div class="input-controls">
+                                <button class="value-btn">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-md-3 input-group-custom">
                             <label>Altura (cm)</label>
                             <input type="number" class="form-control" id="sapAltura" value="20" step="5">
+                            <div class="input-controls">
+                                <button class="value-btn">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-md-3 input-group-custom">
                             <label>Qtd. Sapatas</label>
                             <input type="number" class="form-control" id="sapQtd" value="1" min="1">
+                            <div class="input-controls">
+                                <button class="value-btn">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
                         <div class="col-6 col-md-3">
                             <label>Qtd. Ferros</label>
@@ -181,13 +581,21 @@
                                 <option value="12">12</option>
                             </select>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-md-3 input-group-custom">
                             <label>Sobra Extremidade (cm)</label>
-                            <input type="number" class="form-control" id="sapSobra" value="3">
+                            <input type="number" class="form-control" id="sapSobra" value="3" step="1">
+                            <div class="input-controls">
+                                <button class="value-btn">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-md-3 input-group-custom">
                             <label>Sobra Aceitável (m)</label>
                             <input type="number" class="form-control" id="sapSobraAceitavel" value="1.0" step="0.1">
+                            <div class="input-controls">
+                                <button class="value-btn">+</button>
+                                <button class="value-btn">−</button>
+                            </div>
                         </div>
                     </div>
 
@@ -200,17 +608,195 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Funções para Colunas
+        /**
+         * Módulo de Configurações Avançadas
+         * - Sistema de salvamento por long press
+         * - Validação de campos
+         * - Gerenciamento de estado
+         */
+        
+        // Sistema de Salvamento
+        let pressTimer;
+        const saveNotification = document.getElementById('saveNotification');
+        
+        // Função para mostrar notificação
+        function showSaveNotification() {
+            saveNotification.style.display = 'block';
+            setTimeout(() => saveNotification.style.display = 'none', 2500);
+        }
+    
+        // Inicializar valores salvos para todos os campos
+        function loadSavedValues() {
+            // Busca todos os containers com a classe .savable
+            document.querySelectorAll('.savable').forEach(container => {
+                const key = container.dataset.saveKey; // Pega a chave única
+                const savedValue = localStorage.getItem(key); // Busca valor salvo
+                
+                if(savedValue) {
+                    // Encontra o input DENTRO do container
+                    const input = container.querySelector('input');
+                    if(input) input.value = savedValue; // Define o valor corretamente
+                }
+            });
+        }
+    
+        // Configurar eventos de long press para todos os botões +
+        function setupSaveTriggers() {
+            document.querySelectorAll('.save-trigger').forEach(btn => {
+                // Eventos para desktop
+                btn.addEventListener('mousedown', startPress);
+                btn.addEventListener('mouseup', cancelPress);
+                btn.addEventListener('mouseleave', cancelPress);
+                
+                // Eventos para mobile
+                btn.addEventListener('touchstart', startPress);
+                btn.addEventListener('touchend', cancelPress);
+                btn.addEventListener('touchcancel', cancelPress);
+            });
+        }
+    
+        function startPress(e) {
+            e.preventDefault();
+            // Encontra o container .savable mais próximo
+            const parent = e.target.closest('.savable');
+            // Seleciona o input DENTRO do container
+            const input = parent.querySelector('input');
+            
+            pressTimer = setTimeout(() => {
+                // Salva usando a chave do container e valor do input
+                localStorage.setItem(parent.dataset.saveKey, input.value);
+                showSaveNotification();
+            }, 1500);
+        }
+    
+        function cancelPress(e) {
+            e.preventDefault();
+            clearTimeout(pressTimer);
+        }
+
+        /**
+         * Módulo de Entrada de Estribo
+         * - Validação automática
+         * - Formatação inteligente
+         */
+        function setupEstriboInput() {
+            const estriboX = document.getElementById('estriboX');
+            const estriboY = document.getElementById('estriboY');
+
+            function sanitizeValue(input) {
+                let value = parseInt(input.value) || 0;
+                value = Math.max(5, Math.min(50, value));
+                input.value = value.toString().padStart(2, '0');
+            }
+
+            [estriboX, estriboY].forEach(input => {
+                input.addEventListener('blur', () => sanitizeValue(input));
+                input.addEventListener('change', () => sanitizeValue(input));
+            });
+
+            // Forçar validação inicial
+            sanitizeValue(estriboX);
+            sanitizeValue(estriboY);
+        }
+
+        /**
+         * Função para obter valor do estribo formatado
+         * @returns {string} Valor no formato XXxXX
+         */
+        function getEstriboValue() {
+            const x = document.getElementById('estriboX').value.padStart(2, '0');
+            const y = document.getElementById('estriboY').value.padStart(2, '0');
+            return `${x}x${y}`;
+        }
+
+        // Função corrigida para controle dos botões
+        function setupValueButtons() {
+            document.querySelectorAll('.input-controls').forEach(controls => {
+                const input = controls.previousElementSibling;
+                
+                // Configuração para mobile
+                let pressTimer;
+                
+                const startPress = (btn) => {
+                    pressTimer = setTimeout(() => {
+                        if(btn.classList.contains('save-trigger')) {
+                            const parent = btn.closest('.savable');
+                            localStorage.setItem(parent.dataset.saveKey, input.value);
+                            showSaveNotification();
+                        }
+                    }, 500);
+                };
+
+                const cancelPress = () => {
+                    clearTimeout(pressTimer);
+                };
+
+                controls.querySelectorAll('.value-btn').forEach(btn => {
+                    // Remover eventos antigos
+                    btn.onclick = null;
+                    
+                    // Eventos para desktop
+                    btn.addEventListener('mousedown', () => startPress(btn));
+                    btn.addEventListener('mouseup', cancelPress);
+                    btn.addEventListener('mouseleave', cancelPress);
+                    
+                    // Eventos para mobile
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        startPress(btn);
+                    });
+                    
+                    btn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        cancelPress();
+                        if(btn === controls.querySelector(':first-child')) input.stepUp();
+                        if(btn === controls.querySelector(':last-child')) input.stepDown();
+                        input.dispatchEvent(new Event('input'));
+                    });
+                    
+                    // Ação principal
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        if(btn === controls.querySelector(':first-child')) input.stepUp();
+                        if(btn === controls.querySelector(':last-child')) input.stepDown();
+                        input.dispatchEvent(new Event('input'));
+                    };
+                });
+            });
+        }
+
+        // Inicialização do sistema
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSavedValues();
+            setupSaveTriggers();
+            setupEstriboInput();
+            setupValueButtons();
+        });
+
+        /**
+         * Módulo de Cálculos
+         * Contém todas as funções relacionadas aos cálculos de ferragens
+         */
+
+        /** Adiciona novo campo de coluna */
         function addColumnEntry() {
             const newEntry = document.createElement('div');
             newEntry.className = 'column-entry mt-2';
             newEntry.innerHTML = `
                 <div class="row g-3">
-                    <div class="col-6 col-md-3">
-                        <input type="number" class="form-control altura" value="4" step="0.5" placeholder="Altura (m)">
+                    <div class="col-6 col-md-3 input-group-custom">
+                        <input type="number" class="form-control altura" value="4" step="0.5" min="1" placeholder="Altura (m)">
+                        <div class="input-controls">
+                            <button class="value-btn" onclick="this.parentElement.previousElementSibling.stepUp()">+</button>
+                            <button class="value-btn" onclick="this.parentElement.previousElementSibling.stepDown()">−</button>
+                        </div>
                     </div>
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-3 input-group-custom">
                         <input type="number" class="form-control qtd" value="1" min="1" placeholder="Quantidade">
+                        <div class="input-controls">
+                            <button class="value-btn" onclick="this.parentElement.previousElementSibling.stepUp()">+</button>
+                            <button class="value-btn" onclick="this.parentElement.previousElementSibling.stepDown()">−</button>
+                        </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <select class="form-select ferros">
@@ -219,7 +805,7 @@
                         </select>
                     </div>
                     <div class="col-6 col-md-3">
-                        <div class="form-check pt-3">
+                        <div class="form-check pt-2">
                             <input class="form-check-input reforco" type="checkbox">
                             <label class="form-check-label">+2 Reforço</label>
                         </div>
@@ -228,143 +814,353 @@
             document.getElementById('columnEntries').appendChild(newEntry);
         }
 
-        function calcularEstribos(altura) {
-            let estribos = 0;
-            const metrosInteiros = Math.floor(altura);
-            const meioMetro = altura % 1 >= 0.5;
+        /** Calcula quantidade de estribos */
+        function calcularEstribos(altura, spacing) {
+            if(spacing === '15') return Math.ceil((altura * 100) / 15) + 1;
+            if(spacing === '20') return Math.ceil((altura * 100) / 20) + 1;
 
-            if(altura <= 5) {
-                estribos = metrosInteiros * 3;
-                if(meioMetro) estribos += 2;
-            } else {
-                estribos = 15;
-                const metrosExtras = altura -5;
-                const metrosExtrasInteiros = Math.floor(metrosExtras);
-                estribos += metrosExtrasInteiros *1;
-                
-                if(metrosExtras - metrosExtrasInteiros >= 0.5) {
-                    if(altura <= 6.5) estribos +=2;
-                    else if(altura <= 7.5) estribos +=3;
-                    else estribos += Math.floor(metrosExtras) +2;
-                }
-            }
-            return estribos;
-        }
-
-        function calcularColuna() {
-            const entries = document.querySelectorAll('.column-entry');
-            let totalFerrosPrincipais = 0;
-            let totalEstribos = 0;
-
-            entries.forEach(entry => {
-                const altura = parseFloat(entry.querySelector('.altura').value);
-                const qtd = parseInt(entry.querySelector('.qtd').value);
-                const ferros = parseInt(entry.querySelector('.ferros').value);
-                const reforco = entry.querySelector('.reforco').checked ? 2 : 0;
-                
-                totalFerrosPrincipais += qtd * (ferros + reforco);
-                totalEstribos += calcularEstribos(altura) * qtd;
-            });
-
-            const estribo = document.getElementById('colEstribo').value.split('x').map(Number);
-            const sobraEstribo = parseInt(document.getElementById('colSobraEstribo').value);
-            const sobraAceitavel = parseFloat(document.getElementById('colSobraAceitavel').value);
-
-            // Cálculo de ferros principais
-            const totalMetrosPrincipais = totalFerrosPrincipais * entries[0].querySelector('.altura').value; // Assume mesma altura
-            const barrasNecessarias = Math.ceil(totalMetrosPrincipais / 12);
-            const sobraPorBarra = 12 % entries[0].querySelector('.altura').value;
-            const sobraTotal = barrasNecessarias * sobraPorBarra;
-
-            // Cálculo de estribos
-            const perimetroEstribo = (estribo[0]*2 + estribo[1]*2) + sobraEstribo;
-            const estribosPorBarra = Math.floor(1200 / perimetroEstribo);
-            const barrasEstribo = Math.ceil(totalEstribos / estribosPorBarra);
-            const sobraEstriboPorBarra = 1200 - (estribosPorBarra * perimetroEstribo);
-
-            // Verificar otimização
-            let otimizacaoEstribo = '';
-            if(sobraEstriboPorBarra > 0) {
-                const novoPerimetro = perimetroEstribo - 1;
-                const novosEstribosPorBarra = Math.floor(1200 / novoPerimetro);
-                if(novosEstribosPorBarra > estribosPorBarra) {
-                    otimizacaoEstribo = `<div class="optimization-tip">Dica: Reduzir 1cm da sobra permitiria ${novosEstribosPorBarra} estribos/barra (economia de ${barrasEstribo - Math.ceil(totalEstribos/novosEstribosPorBarra)} barras)</div>`;
-                }
-            }
-
-            // Calcular medida total do estribo
-            const perimetroEstriboTotal = (estribo[0]*2 + estribo[1]*2) + sobraEstribo;
-
-            // Montar resultado
-            let resultado = `
-                <div class="result-card">
-                    <h4>Resultado para Colunas</h4>
-                    
-                    <div class="cut-instruction">
-                        <h5>Ferros Principais</h5>
-                        <p>➜ Barras necessárias: ${barrasNecessarias}x12m</p>
-                        <p>➜ Corte cada barra em ${entries[0].querySelector('.altura').value}m</p>
-                        <p>➜ Sobra por barra: <span class="${sobraPorBarra >= sobraAceitavel ? 'good-waste waste-badge' : 'bad-waste waste-badge'}">${sobraPorBarra.toFixed(2)}m</span></p>
-                        <p>➜ Sobra total: ${sobraTotal.toFixed(2)}m</p>
-                    </div>
-
-                    <div class="cut-instruction">
-                        <h5>Estribos</h5>
-                        <p>➜ Medida total por estribo: 
-                            <span class="good-waste waste-badge">${perimetroEstriboTotal}cm</span>
-                            <small class="text-muted">(${estribo[0]}x${estribo[1]}cm + ${sobraEstribo}cm)</small>
-                        </p>
-                        <p>➜ Total necessário: ${totalEstribos} unidades</p>
-                        <p>➜ Barras de estribo: ${barrasEstribo}x12m</p>
-                        <p>➜ ${estribosPorBarra} estribos/barra</p>
-                        <p>➜ Sobra por barra: <span class="${sobraEstriboPorBarra >= 150 ? 'good-waste waste-badge' : 'bad-waste waste-badge'}">${sobraEstriboPorBarra}cm</span></p>
-                        ${otimizacaoEstribo}
-                    </div>
-                </div>`;
-
-            document.getElementById('resultadoColuna').innerHTML = resultado;
-        }
-
-        // Funções para Sapatas
-        function calcularSapata() {
-            const config = {
-                comprimento: parseInt(document.getElementById('sapComprimento').value)/100,
-                largura: parseInt(document.getElementById('sapLargura').value)/100,
-                altura: parseInt(document.getElementById('sapAltura').value)/100,
-                qtd: parseInt(document.getElementById('sapQtd').value),
-                qtdFerros: parseInt(document.getElementById('sapQtdFerros').value),
-                sobra: parseInt(document.getElementById('sapSobra').value)/100,
-                sobraAceitavel: parseFloat(document.getElementById('sapSobraAceitavel').value)
+            // Cálculo para espaçamento normal (tabela de referência)
+            const table = {
+                0.5: 2, 1: 3, 1.5: 5, 2: 6, 2.5: 8,
+                3: 9, 3.5: 11, 4: 12, 4.5:14, 5:16,
+                5.5:17, 6:19, 6.5:21, 7:23, 7.5:24,
+                8:27, 8.5:28, 9:30, 9.5:31, 10:33,
+                10.5:34, 11:36, 11.5:37, 12:40
             };
-
-            const multiplicador = config.qtdFerros / 2;
-            const medidaX = ((config.comprimento + config.altura) * 2 + config.sobra);
-            const medidaY = ((config.largura + config.altura) * 2 + config.sobra);
             
-            const totalX = medidaX * multiplicador * config.qtd;
-            const totalY = medidaY * multiplicador * config.qtd;
-            const total = totalX + totalY;
+            if(table[altura]) return table[altura];
             
-            const barrasNecessarias = Math.ceil(total / 12);
-            const sobraTotal = (barrasNecessarias * 12) - total;
-
-            let resultado = `
-                <div class="result-card">
-                    <h4>Resultado para ${config.qtd} Sapatas</h4>
-                    
-                    <div class="cut-instruction">
-                        <h5>Detalhes do Cálculo</h5>
-                        <p>➜ Total de ferro: ${total.toFixed(2)}m</p>
-                        <p>➜ Barras necessárias: ${barrasNecessarias}x12m</p>
-                        <p>➜ Medidas por sapata (x${config.qtd}):</p>
-                        <p>• Eixo X: ${medidaX.toFixed(2)}m x${multiplicador * config.qtd}</p>
-                        <p>• Eixo Y: ${medidaY.toFixed(2)}m x${multiplicador * config.qtd}</p>
-                        <p>➜ Sobra total: <span class="${sobraTotal >= config.sobraAceitavel ? 'good-waste' : 'bad-waste'}">${sobraTotal.toFixed(2)}m</span></p>
-                    </div>
-                </div>`;
-
-            document.getElementById('resultadoSapata').innerHTML = resultado;
+            // Extrapolação para alturas maiores que 12m
+            return table[altura] || 40 + Math.floor((altura - 12)) * 3 + (altura % 1 >= 0.5 ? 2 : 0);
         }
+
+        /** Calcula valores para colunas */
+        function calcularColuna() {
+            try {
+                const entries = document.querySelectorAll('.column-entry');
+                if(entries.length === 0) throw new Error('Adicione pelo menos uma coluna');
+                
+                let totalBarras = 0;
+                let totalSobra = 0;
+                let totalEstribos = 0;
+                const spacing = document.getElementById('estriboSpacing').value;
+                const sobraAceitavel = parseFloat(document.getElementById('colSobraAceitavel').value);
+
+                // Lista todas as peças necessárias
+                let todasPecas = [];
+                
+                entries.forEach(entry => {
+                    const altura = parseFloat(entry.querySelector('.altura').value);
+                    const qtd = parseInt(entry.querySelector('.qtd').value);
+                    const ferros = parseInt(entry.querySelector('.ferros').value);
+                    const reforco = entry.querySelector('.reforco').checked ? 2 : 0;
+                    
+                    // Validação básica
+                    if(isNaN(altura) || altura <= 0) throw new Error('Altura inválida');
+                    if(isNaN(qtd) || qtd <= 0) throw new Error('Quantidade inválida');
+
+                    // Adiciona ferros principais
+                    const pecasPrincipais = qtd * ferros;
+                    for(let i = 0; i < pecasPrincipais; i++) {
+                        todasPecas.push({
+                            tipo: 'Principal',
+                            comprimento: altura,
+                            origem: `Coluna ${altura.toFixed(1)}m`
+                        });
+                    }
+
+                    // Adiciona reforços (altura + 10%)
+                    if(reforco > 0) {
+                        const comprimentoReforco = altura * 1.1;
+                        const pecasReforco = qtd * reforco;
+                        for(let i = 0; i < pecasReforco; i++) {
+                            todasPecas.push({
+                                tipo: 'Reforço',
+                                comprimento: comprimentoReforco,
+                                origem: `Coluna ${altura.toFixed(1)}m +10%`
+                            });
+                        }
+                    }
+
+                    // Calcula estribos
+                    totalEstribos += calcularEstribos(altura, spacing) * qtd;
+                });
+
+                // Ordena peças do maior para o menor (otimização de corte)
+                todasPecas.sort((a, b) => b.comprimento - a.comprimento);
+
+                // Algoritmo de empacotamento (bin packing)
+                let barras = [];
+                todasPecas.forEach(peca => {
+                    let alocada = false;
+                    
+                    // Tenta encaixar em barras existentes
+                    for(let barra of barras) {
+                        const espacoLivre = 12 - barra.usado;
+                        if(espacoLivre >= peca.comprimento) {
+                            barra.pecas.push(peca);
+                            barra.usado += peca.comprimento;
+                            barra.sobra = 12 - barra.usado;
+                            alocada = true;
+                            break;
+                        }
+                    }
+
+                    // Cria nova barra se necessário
+                    if(!alocada) {
+                        barras.push({
+                            pecas: [peca],
+                            usado: peca.comprimento,
+                            sobra: 12 - peca.comprimento
+                        });
+                    }
+                });
+
+                // Calcula totais
+                totalBarras = barras.length;
+                totalSobra = barras.reduce((acc, barra) => acc + barra.sobra, 0);
+
+                // Prepara detalhamento otimizado
+                let detalhes = `
+                    <div class="mt-3">
+                        <a class="detalhes-toggle" data-bs-toggle="collapse" href="#detalhesBarras" role="button">
+                            <i class="bi bi-chevron-down"></i> Ver detalhes de corte (${barras.length} barras)
+                        </a>
+                        <div class="collapse detalhes-container" id="detalhesBarras">
+                            ${barras.map((barra, index) => {
+                                const grupos = barra.pecas.reduce((acc, peca) => {
+                                    const key = `${peca.tipo}-${peca.comprimento}-${peca.origem}`;
+                                    acc[key] = (acc[key] || {count: 0, peca});
+                                    acc[key].count++;
+                                    return acc;
+                                }, {});
+
+                                return `
+                                    <div class="barra-info">
+                                        <div class="mb-2">
+                                            <strong>Barra ${index + 1}:</strong> 
+                                            <span class="${barra.sobra >= sobraAceitavel ? 'good-waste' : 'bad-waste'}">
+                                                Sobra: ${barra.sobra.toFixed(2)}m
+                                            </span>
+                                        </div>
+                                        ${Object.values(grupos).map(g => `
+                                            <div class="peca-item">
+                                                ${g.count > 1 ? `${g.count}x ` : ''}
+                                                ${g.peca.tipo} 
+                                                (${g.peca.comprimento.toFixed(2)}m)
+                                                - ${g.peca.origem}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>`;
+
+                // Cálculo de estribos
+                const estribo = getEstriboValue().split('x').map(Number);
+                const sobraEstribo = parseInt(document.getElementById('colSobraEstribo').value);
+                const perimetroEstribo = (estribo[0]*2 + estribo[1]*2) + sobraEstribo;
+                const estribosPorBarra = Math.floor(1200 / perimetroEstribo);
+                const barrasEstribo = Math.ceil(totalEstribos / estribosPorBarra);
+                const sobraEstriboPorBarra = 1200 - (estribosPorBarra * perimetroEstribo);
+
+                let resultado = `
+                    <div class="result-card">
+                        <h4>Resultado para Colunas</h4>
+                        
+                        <div class="cut-instruction">
+                            <h5>Ferragens Principais</h5>
+                            <p>➜ Total de barras: ${totalBarras}x12m</p>
+                            <p>➜ Sobra total: <span class="${totalSobra >= sobraAceitavel ? 'good-waste' : 'bad-waste'}">${totalSobra.toFixed(2)}m</span></p>
+                            ${detalhes}
+                        </div>
+
+                        <div class="cut-instruction">
+                            <h5>Estribos</h5>
+                            <p>➜ Medida por estribo: 
+                                <span class="good-waste">${perimetroEstribo}cm</span>
+                                <small>(${estribo[0]}x${estribo[1]}cm + ${sobraEstribo}cm)</small>
+                            </p>
+                            <p>➜ Total necessário: ${totalEstribos} unidades</p>
+                            <p>➜ Barras necessárias: ${barrasEstribo}x12m</p>
+                            <p>➜ Estribos por barra: ${estribosPorBarra}</p>
+                            <p>➜ Sobra por barra: <span class="${sobraEstriboPorBarra >= 150 ? 'good-waste' : 'bad-waste'}">${sobraEstriboPorBarra}cm</span></p>
+                        </div>
+                    </div>`;
+
+                document.getElementById('resultadoColuna').innerHTML = resultado;
+
+                // Adiciona ícones do Bootstrap
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+                `;
+                document.head.appendChild(style);
+
+            } catch(e) {
+                console.error('Erro no cálculo:', e);
+                alert('Erro nos dados inseridos! Verifique os valores.');
+            }
+        }
+
+        /** Calcula valores para sapatas */
+        function calcularSapata() {
+            try {
+                const config = {
+                    comprimento: parseInt(document.getElementById('sapComprimento').value)/100,
+                    largura: parseInt(document.getElementById('sapLargura').value)/100,
+                    altura: parseInt(document.getElementById('sapAltura').value)/100,
+                    qtd: parseInt(document.getElementById('sapQtd').value),
+                    qtdFerros: parseInt(document.getElementById('sapQtdFerros').value),
+                    sobra: parseInt(document.getElementById('sapSobra').value)/100,
+                    sobraAceitavel: parseFloat(document.getElementById('sapSobraAceitavel').value)
+                };
+
+                // Validação dos dados
+                if(Object.values(config).some(v => isNaN(v) || v <= 0)) {
+                    throw new Error('Valores inválidos para sapatas');
+                }
+
+                // Calcula medidas dos ferros
+                const medidaX = (config.comprimento + config.altura) * 2 + config.sobra;
+                const medidaY = (config.largura + config.altura) * 2 + config.sobra;
+                const ferrosPorEixo = config.qtdFerros / 2;
+
+                // Cria lista de todas as peças
+                let todasPecas = [];
+                const dimensoes = `${config.comprimento.toFixed(2)}m x ${config.largura.toFixed(2)}m x ${config.altura.toFixed(2)}m`;
+                
+                for(let i = 0; i < config.qtd; i++) {
+                    for(let j = 0; j < ferrosPorEixo; j++) {
+                        todasPecas.push({
+                            tipo: 'Eixo X (C+A)',
+                            comprimento: medidaX,
+                            origem: `Sapata ${dimensoes}`,
+                            detalhe: `(C: ${config.comprimento.toFixed(2)}m + A: ${config.altura.toFixed(2)}m)`
+                        });
+                        todasPecas.push({
+                            tipo: 'Eixo Y (L+A)',
+                            comprimento: medidaY,
+                            origem: `Sapata ${dimensoes}`,
+                            detalhe: `(L: ${config.largura.toFixed(2)}m + A: ${config.altura.toFixed(2)}m)`
+                        });
+                    }
+                }
+
+                // Ordena peças do maior para o menor
+                todasPecas.sort((a, b) => b.comprimento - a.comprimento);
+
+                // Algoritmo de empacotamento
+                let barras = [];
+                todasPecas.forEach(peca => {
+                    let alocada = false;
+                    
+                    for(let barra of barras) {
+                        const espacoLivre = 12 - barra.usado;
+                        if(espacoLivre >= peca.comprimento) {
+                            barra.pecas.push(peca);
+                            barra.usado += peca.comprimento;
+                            barra.sobra = 12 - barra.usado;
+                            alocada = true;
+                            break;
+                        }
+                    }
+
+                    if(!alocada) {
+                        barras.push({
+                            pecas: [peca],
+                            usado: peca.comprimento,
+                            sobra: 12 - peca.comprimento
+                        });
+                    }
+                });
+
+                // Calcula totais
+                const totalBarras = barras.length;
+                const totalSobra = barras.reduce((sum, barra) => sum + barra.sobra, 0);
+                const totalFerro = todasPecas.reduce((sum, peca) => sum + peca.comprimento, 0);
+
+                // Prepara detalhamento
+                let detalhes = `
+                    <div class="mt-3">
+                        <a class="detalhes-toggle" data-bs-toggle="collapse" href="#detalhesSapatas" role="button">
+                            <i class="bi bi-chevron-down"></i> Ver detalhes de corte (${barras.length} barras)
+                        </a>
+                        <div class="collapse detalhes-container" id="detalhesSapatas">
+                            ${barras.map((barra, index) => {
+                                const grupos = barra.pecas.reduce((acc, peca) => {
+                                    const key = `${peca.tipo}-${peca.comprimento}-${peca.origem}`;
+                                    acc[key] = (acc[key] || {count: 0, peca});
+                                    acc[key].count++;
+                                    return acc;
+                                }, {});
+
+                                return `
+                                    <div class="barra-info">
+                                        <div class="mb-2">
+                                            <strong>Barra ${index + 1}:</strong> 
+                                            <span class="${barra.sobra >= config.sobraAceitavel ? 'good-waste' : 'bad-waste'}">
+                                                Sobra: ${barra.sobra.toFixed(2)}m
+                                            </span>
+                                        </div>
+                                        ${Object.values(grupos).map(g => `
+                                            <div class="peca-item">
+                                                ${g.count > 1 ? `${g.count}x ` : ''}
+                                                ${g.peca.tipo} 
+                                                (${g.peca.comprimento.toFixed(2)}m)
+                                                <div class="text-muted">${g.peca.detalhe}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>`;
+
+                let resultado = `
+                    <div class="result-card">
+                        <h4>Resultado para ${config.qtd} Sapatas</h4>
+                        
+                        <div class="cut-instruction">
+                            <h5>Detalhes Gerais</h5>
+                            <p>➜ Dimensões: ${dimensoes}</p>
+                            <p>➜ Ferros por sapata: ${config.qtdFerros} (${ferrosPorEixo}x por eixo)</p>
+                            <p>➜ Total de barras: ${totalBarras}x12m</p>
+                            <p>➜ Total de ferro: ${totalFerro.toFixed(2)}m</p>
+                            <p>➜ Sobra total: <span class="${totalSobra >= config.sobraAceitavel ? 'good-waste' : 'bad-waste'}">${totalSobra.toFixed(2)}m</span></p>
+                            ${detalhes}
+                        </div>
+
+                        <div class="cut-instruction">
+                            <h5>Medidas Individuais</h5>
+                            <p>➜ Eixo X (Comprimento + Altura): ${medidaX.toFixed(2)}m</p>
+                            <p>➜ Eixo Y (Largura + Altura): ${medidaY.toFixed(2)}m</p>
+                            <p>➜ Gancho/SoBRA: ${config.sobra.toFixed(2)}m</p>
+                        </div>
+                    </div>`;
+
+                document.getElementById('resultadoSapata').innerHTML = resultado;
+
+            } catch(e) {
+                console.error('Erro no cálculo:', e);
+                alert('Erro nos dados inseridos! Verifique os valores.');
+            }
+        }
+
+        /**
+         * Módulo de Interface
+         * Controla interações com os elementos da UI
+         */
+        
+        // Adiciona os eventos de click para todos os botões + e -
+        document.querySelectorAll('.value-btn').forEach(btn => {
+            if (btn.textContent === '+') {
+                btn.onclick = () => btn.parentElement.previousElementSibling.stepUp();
+            } else {
+                btn.onclick = () => btn.parentElement.previousElementSibling.stepDown();
+            }
+        });
     </script>
 </body>
 </html>
