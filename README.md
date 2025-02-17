@@ -1,8 +1,11 @@
 # Cálculo de Ferragens para Construção Civil
 
-![Preview](https://cylextty.github.io/Calculo-de-Ferragens/)
+[![GitHub deployments](https://img.shields.io/github/deployments/CylexTTY/Calculo-de-Ferragens/github-pages?label=Deployment)](https://cylextty.github.io/Calculo-de-Ferragens/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://cylextty.github.io/Calculo-de-Ferragens/)
 
 Ferramenta web para cálculo otimizado de ferragens (armação) em elementos estruturais como colunas e sapatas, com foco em minimizar desperdícios de materiais.
+
+**Acesso direto:** [https://cylextty.github.io/Calculo-de-Ferragens/](https://cylextty.github.io/Calculo-de-Ferragens/)
 
 ## ✨ Funcionalidades
 
@@ -22,7 +25,7 @@ Ferramenta web para cálculo otimizado de ferragens (armação) em elementos est
   - Sistema de salvamento de preferências (localStorage)
   - Interface responsiva para uso em dispositivos móveis
   - Detecção automática de desperdício aceitável
-  - Modo escuro integrado (via preferência do sistema)
+  - Acesso online permanente via GitHub Pages
 
 ## 🛠 Tecnologias Utilizadas
 
@@ -40,30 +43,35 @@ Ferramenta web para cálculo otimizado de ferragens (armação) em elementos est
 
 ## 🚀 Como Usar
 
-1. **Colunas**
-   - Adicione colunas com diferentes alturas usando o botão "+"
-   - Configure quantidade de ferros e reforços
-   - Ajuste medidas de estribos e espaçamento
-   - Clique em "Calcular" para ver resultados detalhados
+### Live Demo
+Acesse diretamente pelo link:  
+[https://cylextty.github.io/Calculo-de-Ferragens/](https://cylextty.github.io/Calculo-de-Ferragens/)
 
-2. **Sapatas**
-   - Insira as dimensões da sapata em centímetros
-   - Defina quantidade de ferros por eixo
-   - Especifique sobras para ganchos
-   - Visualize sugestões de corte com desperdício calculado
-
-**Dica:** Use *long press* (toque prolongado) nos botões "+" de "Sobra Estribo" e "Sobra Aceitável" para salvar configurações preferidas!
-
-## 📦 Instalação
-
+### Localmente
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/calculo-ferragens.git
+git clone https://github.com/CylexTTY/Calculo-de-Ferragens.git
 
 # Acesse o diretório
-cd calculo-ferragens
+cd Calculo-de-Ferragens
 
 # Basta abrir o index.html em qualquer navegador moderno
+```
 
-# Site direto
-https://cylextty.github.io/Calculo-de-Ferragens/
+📌 Contribuição
+Contribuições são bem-vindas! Siga estes passos:
+
+Faça um Fork do projeto
+
+Crie uma Branch (git checkout -b feature/nova-feature)
+
+Commit suas mudanças (git commit -m 'Adiciona nova feature')
+
+Push para a Branch (git push origin feature/nova-feature)
+
+Abra um Pull Request
+
+✉️ Contato
+Desenvolvido por [CylexTTY](https://github.com/CylexTTY)
+Problemas ou sugestões? [Abrir Issue](https://github.com/CylexTTY/Calculo-de-Ferragens/issues)
+
